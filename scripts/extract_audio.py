@@ -5,12 +5,14 @@ from yt_dlp import YoutubeDL
 from pydub import AudioSegment
 
 CHUNK_DURATION = 2
-BASE_DATA_DIR = "./data"
+BASE_DATA_DIR = "./data/audiosamples"
 JSON_FILE = "scripts/video_metadata.json"
+# Note: -80 dB is extremely quiet (digital silence). 
+# If it doesn't skip enough dead air, consider raising this to -40 or -50 later.
 SILENCE_THRESHOLD_DB = -80 
 
 def setup_directories():
-    classes = ["light", "medium", "heavy"]
+    classes = ["light", "medium", "heavy", "nodrone"]
     for c in classes:
         target_path = os.path.join(BASE_DATA_DIR, c)
         os.makedirs(target_path, exist_ok=True)
@@ -36,7 +38,9 @@ def download_and_slice():
 
     setup_directories()
     total_videos = len(video_collection)
-    class_counters = {"light": 1, "medium": 1, "heavy": 1}
+    
+    # FIX 1: Added "nodrone" counter initialization here
+    class_counters = {"light": 1, "medium": 1, "heavy": 1, "nodrone": 1}
 
     print(f"Starting extraction pipeline for {total_videos} videos with real-time silence stripping...\n")
 
@@ -116,6 +120,8 @@ def download_and_slice():
     print(f"Total Light Samples: {class_counters['light'] - 1}")
     print(f"Total Medium Samples: {class_counters['medium'] - 1}")
     print(f"Total Heavy Samples: {class_counters['heavy'] - 1}")
+    # FIX 2: Added nodrone print summary here
+    print(f"Total No-Drone Samples: {class_counters['nodrone'] - 1}")
 
 if __name__ == "__main__":
     download_and_slice()
