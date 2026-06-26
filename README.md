@@ -18,8 +18,6 @@ The framework performs four-class classification across the following categories
 - Heavy Drone
 - No Drone
 
-The No-Drone category consists of environmental background recordings including traffic noise, wind, rainfall, bird vocalizations, and other ambient sounds, enabling evaluation under realistic acoustic conditions.
-
 ---
 
 ## Project Objective
