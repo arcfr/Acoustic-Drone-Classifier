@@ -178,21 +178,6 @@ Acoustic-Drone-Classifier/
 
 ---
 
-## Why Dataset Files Are Not Included
-
-Raw audio recordings (`.wav`) and generated feature matrices (`.npy`) are excluded from version control through `.gitignore`.
-
-This approach:
-
-- Prevents repository bloat
-- Reduces repository size
-- Improves cloning efficiency
-- Separates source code from large binary assets
-
-The repository contains the complete preprocessing, feature extraction, training, and evaluation pipeline required to reproduce the dataset representations locally.
-
----
-
 ## Installation
 
 Install the required dependencies:
