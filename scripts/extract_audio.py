@@ -8,7 +8,6 @@ CHUNK_DURATION = 2
 BASE_DATA_DIR = "./data/audiosamples"
 JSON_FILE = "scripts/video_metadata.json"
 # Note: -80 dB is extremely quiet (digital silence). 
-# If it doesn't skip enough dead air, consider raising this to -40 or -50 later.
 SILENCE_THRESHOLD_DB = -80 
 
 def setup_directories():

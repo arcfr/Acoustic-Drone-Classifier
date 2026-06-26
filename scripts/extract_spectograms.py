@@ -3,7 +3,7 @@ import numpy as np
 import librosa
 
 BASE_DATA_DIR = "./data_preprocessed/audio_preprocessed"
-OUTPUT_DIR = "./data_preprocessed/mfccfeatures"
+OUTPUT_DIR = "./data_preprocessed/log_mel_spectograms"
 
 LABEL_MAPPING = {
     "light": 0,
@@ -12,10 +12,11 @@ LABEL_MAPPING = {
     "nodrone": 3
 }
 
-N_MFCC = 24
-TARGET_WIDTH = 87
+# ResNet-friendly target dimensions
+N_MELS = 128       # Height of the image
+TARGET_WIDTH = 87  # Width of the image (time steps)
 
-def extract_features_pipeline():
+def extract_spectrogram_pipeline():
     if not os.path.exists(BASE_DATA_DIR):
         print(f"Error: Base data folder '{BASE_DATA_DIR}' not found.")
         return
@@ -25,7 +26,7 @@ def extract_features_pipeline():
     X_data = []
     y_data = []
     
-    print("Initiating Enhanced 3-Channel MFCC Extraction Pipeline...\n")
+    print("Extracting Log-Mel Spectrograms for Transfer Learning...\n")
     
     for category, label_int in LABEL_MAPPING.items():
         cat_folder = os.path.join(BASE_DATA_DIR, category)
@@ -42,24 +43,26 @@ def extract_features_pipeline():
             
             try:
                 y, sr = librosa.load(file_path, sr=22050)
-                
                 if len(y) == 0:
                     continue
-                    
-                mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=N_MFCC)
                 
-                if mfcc.shape[1] < TARGET_WIDTH:
-                    pad_width = TARGET_WIDTH - mfcc.shape[1]
-                    mfcc = np.pad(mfcc, pad_width=((0, 0), (0, pad_width)), mode='constant')
-                elif mfcc.shape[1] > TARGET_WIDTH:
-                    mfcc = mfcc[:, :TARGET_WIDTH]
+                # 1. Compute Raw Mel Spectrogram
+                mel_spec = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=N_MELS)
                 
-                delta = librosa.feature.delta(mfcc)
-                delta2 = librosa.feature.delta(mfcc, order=2)
+                # 2. Convert to Log Scale (Decibels)
+                log_mel_spec = librosa.power_to_db(mel_spec, ref=np.max)
                 
-                three_channel_block = np.stack([mfcc, delta, delta2], axis=-1)
+                # 3. Handle Time Dimension Padding/Trimming
+                if log_mel_spec.shape[1] < TARGET_WIDTH:
+                    pad_width = TARGET_WIDTH - log_mel_spec.shape[1]
+                    log_mel_spec = np.pad(log_mel_spec, pad_width=((0, 0), (0, pad_width)), mode='constant')
+                elif log_mel_spec.shape[1] > TARGET_WIDTH:
+                    log_mel_spec = log_mel_spec[:, :TARGET_WIDTH]
                 
-                X_data.append(three_channel_block)
+                # 4. Duplicate grayscale spectrogram across 3 channels to simulate RGB
+                rgb_spectrogram = np.stack([log_mel_spec, log_mel_spec, log_mel_spec], axis=-1)
+                
+                X_data.append(rgb_spectrogram)
                 y_data.append(label_int)
                 
             except Exception as e:
@@ -68,18 +71,16 @@ def extract_features_pipeline():
     X = np.array(X_data, dtype=np.float32)
     y = np.array(y_data, dtype=np.int64)
     
-    print("\nNormalizing feature layers globally...")
+    # Global normalization scale
     mean = np.mean(X)
     std = np.std(X)
     if std > 0:
         X = (X - mean) / std
-        
-    np.save(os.path.join(OUTPUT_DIR, "X.npy"), X)
-    np.save(os.path.join(OUTPUT_DIR, "y.npy"), y)
+    np.save(os.path.join(OUTPUT_DIR, "X_resnet.npy"), X)
+    np.save(os.path.join(OUTPUT_DIR, "y_resnet.npy"), y)
     
-    print("\nMatrix Compilation Complete.")
-    print(f"Final Feature Set (X.npy) Shape: {X.shape}")
-    print(f"Final Target Labels (y.npy) Shape: {y.shape}")
+    print("\nSpectrogram Matrix Compilation Complete.")
+    print(f"Saved to {OUTPUT_DIR} with shape: {X.shape}")
 
 if __name__ == "__main__":
-    extract_features_pipeline()
+    extract_spectrogram_pipeline()
