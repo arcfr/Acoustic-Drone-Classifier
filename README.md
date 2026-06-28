@@ -4,7 +4,7 @@
 
 ## Overview
 
-Acoustic-Drone-Classifier is a supervised audio classification framework developed for multi-class drone recognition using environmental acoustic signatures.
+Acoustic-Drone-Classifier helps with classification over drone audio recordings developed for multi-class drone classification using image classification.
 
 The project evaluates two independent feature-learning pipelines:
 
@@ -37,12 +37,48 @@ Evaluation was conducted using:
 - Randomized dataset shuffling
 - Early stopping based on validation loss monitoring
 
-| Evaluation Metric | Custom 2D-CNN (MFCC + Deltas) | ResNet18 (Log-Mel Spectrograms) |
-|-------------------|-------------------------------|---------------------------------|
-| Accuracy | 89.05% | 95.13% |
-| Macro F1-Score | 0.88 | 0.95 |
-| Heavy Drone Recall | 0.95 | 0.95 |
-| Light Drone Precision | 0.90 | 0.97 |
+## Performance Comparison
+
+Evaluation was performed on a held-out test set consisting of 411 samples.
+
+| Metric             | Custom 2D-CNN (MFCC + Deltas) | ResNet18 (Log-Mel Spectrograms) |
+| ------------------ | ----------------------------: | ------------------------------: |
+| Overall Accuracy   |                     **90.0%** |                       **92.0%** |
+| Macro F1-Score     |                      **0.89** |                        **0.92** |
+| Weighted F1-Score  |                      **0.90** |                        **0.92** |
+| Light Precision    |                      **0.93** |                        **0.99** |
+| Light Recall       |                      **0.85** |                        **0.88** |
+| Light F1-Score     |                      **0.89** |                        **0.93** |
+| Medium Precision   |                      **0.82** |                        **0.89** |
+| Medium Recall      |                      **0.85** |                        **0.90** |
+| Medium F1-Score    |                      **0.84** |                        **0.90** |
+| Heavy Precision    |                      **0.88** |                        **0.94** |
+| Heavy Recall       |                      **0.94** |                        **0.93** |
+| Heavy F1-Score     |                      **0.91** |                        **0.94** |
+| No-Drone Precision |                      **0.94** |                        **0.89** |
+| No-Drone Recall    |                      **0.93** |                        **0.97** |
+| No-Drone F1-Score  |                      **0.93** |                        **0.93** |
+
+### Classification Report Summary
+
+#### Custom 2D-CNN (MFCC + Delta Features)
+
+| Class    | Precision | Recall | F1-Score | Support |
+| -------- | --------: | -----: | -------: | ------: |
+| Light    |      0.93 |   0.85 |     0.89 |     100 |
+| Medium   |      0.82 |   0.85 |     0.84 |      93 |
+| Heavy    |      0.88 |   0.94 |     0.91 |     106 |
+| No-Drone |      0.94 |   0.93 |     0.93 |     112 |
+
+#### ResNet18 (Log-Mel Spectrograms)
+
+| Class    | Precision | Recall | F1-Score | Support |
+| -------- | --------: | -----: | -------: | ------: |
+| Light    |      0.99 |   0.88 |     0.93 |     100 |
+| Medium   |      0.89 |   0.90 |     0.90 |      93 |
+| Heavy    |      0.94 |   0.93 |     0.94 |     106 |
+| No-Drone |      0.89 |   0.97 |     0.93 |     112 |
+
 
 ---
 
@@ -187,7 +223,12 @@ pip install torch torchvision numpy librosa scikit-learn
 ```
 
 ---
+## Audio Generation 
 
+Step 1. run scripts/extract_audio.py 
+Step 2. Run scripts/preprocess_audio.py
+
+---
 ## Feature Generation
 
 ### MFCC Feature Extraction
