@@ -4,12 +4,9 @@
 
 ## Overview
 
-Acoustic-Drone-Classifier helps with classification over drone audio recordings developed for multi-class drone classification using image classification.
+Acoustic-Drone-Classifier is a deep learning framework for multi-class drone classification using acoustic signatures extracted from environmental audio recordings.
 
-The project evaluates two independent feature-learning pipelines:
-
-1. A custom 2D Convolutional Neural Network trained on MFCC, Delta MFCC, and Delta-Delta MFCC representations.
-2. A Transfer Learning approach utilizing a pre-trained ResNet18 backbone operating on Log-Mel Spectrograms.
+The project investigates drone recognition through time-frequency audio representations and benchmarks a custom 2D Convolutional Neural Network against a Transfer Learning pipeline based on a pre-trained ResNet18 architecture.
 
 The framework performs four-class classification across the following categories:
 
@@ -17,6 +14,8 @@ The framework performs four-class classification across the following categories
 - Medium Drone
 - Heavy Drone
 - No Drone
+
+The No-Drone category consists of environmental background recordings including traffic noise, wind, rainfall, bird vocalizations, and other ambient sounds.
 
 ---
 
@@ -28,6 +27,26 @@ The framework processes raw audio streams, extracts discriminative time-frequenc
 
 ---
 
+## Dataset
+
+The dataset was manually curated by Archit Sahay from publicly available drone recordings and environmental audio sources.
+
+Audio segments were manually inspected, verified, labeled, and categorized before feature extraction.
+
+To improve acoustic diversity, recordings were collected from multiple independent sources spanning different recording environments, drone platforms, microphone characteristics, and background conditions.
+
+### Dataset Composition
+
+| Class | Samples |
+|---------|---------:|
+| Light Drone | 399 |
+| Medium Drone | 370 |
+| Heavy Drone | 426 |
+| No Drone | 449 |
+| **Total** | **1644** |
+
+---
+
 ## Performance Benchmark
 
 Evaluation was conducted using:
@@ -36,106 +55,73 @@ Evaluation was conducted using:
 - 10% Validation Split (derived from the training set)
 - Randomized dataset shuffling
 - Early stopping based on validation loss monitoring
+- Best-model checkpoint restoration
 
-## Performance Comparison
+### Performance Comparison
 
 Evaluation was performed on a held-out test set consisting of 411 samples.
 
-| Metric             | Custom 2D-CNN (MFCC + Deltas) | ResNet18 (Log-Mel Spectrograms) |
-| ------------------ | ----------------------------: | ------------------------------: |
-| Overall Accuracy   |                     **90.0%** |                       **92.0%** |
-| Macro F1-Score     |                      **0.89** |                        **0.92** |
-| Weighted F1-Score  |                      **0.90** |                        **0.92** |
-| Light Precision    |                      **0.93** |                        **0.99** |
-| Light Recall       |                      **0.85** |                        **0.88** |
-| Light F1-Score     |                      **0.89** |                        **0.93** |
-| Medium Precision   |                      **0.82** |                        **0.89** |
-| Medium Recall      |                      **0.85** |                        **0.90** |
-| Medium F1-Score    |                      **0.84** |                        **0.90** |
-| Heavy Precision    |                      **0.88** |                        **0.94** |
-| Heavy Recall       |                      **0.94** |                        **0.93** |
-| Heavy F1-Score     |                      **0.91** |                        **0.94** |
-| No-Drone Precision |                      **0.94** |                        **0.89** |
-| No-Drone Recall    |                      **0.93** |                        **0.97** |
-| No-Drone F1-Score  |                      **0.93** |                        **0.93** |
+| Metric | Custom 2D-CNN (MFCC + Deltas) | ResNet18 (Log-Mel Spectrograms) |
+|----------|----------:|----------:|
+| Overall Accuracy | 88.0% | **95.0%** |
+| Macro F1-Score | 0.88 | **0.95** |
+| Weighted F1-Score | 0.88 | **0.95** |
+| Light Precision | 0.92 | **0.94** |
+| Light Recall | 0.92 | **0.94** |
+| Light F1-Score | 0.92 | **0.94** |
+| Medium Precision | 0.92 | **0.94** |
+| Medium Recall | 0.76 | **0.96** |
+| Medium F1-Score | 0.84 | **0.95** |
+| Heavy Precision | 0.80 | **0.94** |
+| Heavy Recall | 0.93 | **0.96** |
+| Heavy F1-Score | 0.86 | **0.95** |
+| No-Drone Precision | 0.92 | **0.97** |
+| No-Drone Recall | 0.90 | **0.93** |
+| No-Drone F1-Score | 0.91 | **0.95** |
+
+---
 
 ### Classification Report Summary
 
 #### Custom 2D-CNN (MFCC + Delta Features)
 
-| Class    | Precision | Recall | F1-Score | Support |
-| -------- | --------: | -----: | -------: | ------: |
-| Light    |      0.93 |   0.85 |     0.89 |     100 |
-| Medium   |      0.82 |   0.85 |     0.84 |      93 |
-| Heavy    |      0.88 |   0.94 |     0.91 |     106 |
-| No-Drone |      0.94 |   0.93 |     0.93 |     112 |
+| Class | Precision | Recall | F1-Score | Support |
+|---------|---------:|---------:|---------:|---------:|
+| Light | 0.92 | 0.92 | 0.92 | 100 |
+| Medium | 0.92 | 0.76 | 0.84 | 93 |
+| Heavy | 0.80 | 0.93 | 0.86 | 106 |
+| No-Drone | 0.92 | 0.90 | 0.91 | 112 |
+
+| Metric | Value |
+|----------|----------:|
+| Accuracy | 0.88 |
+| Macro Avg F1 | 0.88 |
+| Weighted Avg F1 | 0.88 |
 
 #### ResNet18 (Log-Mel Spectrograms)
 
-| Class    | Precision | Recall | F1-Score | Support |
-| -------- | --------: | -----: | -------: | ------: |
-| Light    |      0.99 |   0.88 |     0.93 |     100 |
-| Medium   |      0.89 |   0.90 |     0.90 |      93 |
-| Heavy    |      0.94 |   0.93 |     0.94 |     106 |
-| No-Drone |      0.89 |   0.97 |     0.93 |     112 |
+| Class | Precision | Recall | F1-Score | Support |
+|---------|---------:|---------:|---------:|---------:|
+| Light | 0.94 | 0.94 | 0.94 | 100 |
+| Medium | 0.94 | 0.96 | 0.95 | 93 |
+| Heavy | 0.94 | 0.96 | 0.95 | 106 |
+| No-Drone | 0.97 | 0.93 | 0.95 | 112 |
 
+| Metric | Value |
+|----------|----------:|
+| Accuracy | 0.95 |
+| Macro Avg F1 | 0.95 |
+| Weighted Avg F1 | 0.95 |
 
 ---
 
 ## Experimental Findings
 
-### Early Stopping and Generalization
-
-Both architectures exhibited increasing validation instability when trained for a fixed number of epochs.
-
-To address this, an early stopping mechanism was incorporated using validation loss monitoring and checkpoint restoration of the best-performing model state.
-
-This reduced overfitting and improved holdout-set performance across both architectures.
-
-### Model Comparison
-
-#### Custom 2D-CNN
-
-Input Features:
-
-- MFCC
-- Delta MFCC
-- Delta-Delta MFCC
-
-Characteristics:
-
-- Lower computational overhead
-- Faster training and inference
-- Suitable for resource-constrained environments
-
-#### ResNet18 Transfer Learning
-
-Input Features:
-
-- Log-Mel Spectrograms
-
-Characteristics:
-
-- Higher classification performance
-- Better feature abstraction
-- Increased computational requirements
-
----
-
-## Dataset
-
-The dataset was manually curated by Archit Sahay from publicly available drone recordings and environmental audio sources.
-
-Audio segments were manually inspected, verified, labeled, and categorized before feature extraction.
-
-Current classes include:
-
-- Light Drone
-- Medium Drone
-- Heavy Drone
-- No Drone
-
-To improve acoustic diversity, recordings were collected from multiple independent sources spanning different recording environments, drone platforms, microphone characteristics, and background conditions.
+- The ResNet18 Transfer Learning pipeline consistently outperformed the custom 2D-CNN across all evaluation metrics.
+- Log-Mel Spectrogram representations provided stronger class separation than MFCC-based features.
+- Medium Drone classification represented the most challenging category for the custom CNN, suggesting acoustic overlap between medium-class drones and adjacent categories.
+- Heavy Drone and No-Drone classes demonstrated strong separability across both architectures.
+- Early stopping improved generalization performance by preventing late-stage overfitting and restoring the best validation checkpoint.
 
 ---
 
@@ -156,7 +142,7 @@ Each audio sample undergoes a standardized preprocessing pipeline:
 All recordings are resampled to:
 
 ```text
-22,050 Hz
+22050 Hz
 ```
 
 to eliminate collection-device inconsistencies and maintain feature uniformity.
@@ -167,12 +153,6 @@ Two independent feature generation pipelines are implemented.
 
 #### MFCC Pipeline
 
-Generated using:
-
-```bash
-python scripts/extract_mfcc.py
-```
-
 Generated channels:
 
 - MFCC
@@ -180,12 +160,6 @@ Generated channels:
 - Delta-Delta MFCC
 
 #### Log-Mel Spectrogram Pipeline
-
-Generated using:
-
-```bash
-python scripts/extract_spectrograms.py
-```
 
 Generated representation:
 
@@ -223,12 +197,23 @@ pip install torch torchvision numpy librosa scikit-learn
 ```
 
 ---
-## Audio Generation 
 
-Step 1. run scripts/extract_audio.py 
-Step 2. Run scripts/preprocess_audio.py
+## Audio Generation
+
+### Step 1: Extract Audio
+
+```bash
+python scripts/extract_audio.py
+```
+
+### Step 2: Preprocess Audio
+
+```bash
+python scripts/preprocess_audio.py
+```
 
 ---
+
 ## Feature Generation
 
 ### MFCC Feature Extraction
@@ -261,7 +246,7 @@ python training_scripts/train_resnet.py
 
 Both training pipelines include:
 
-- Dataset splitting
+- Stratified dataset splitting
 - Validation monitoring
 - Early stopping
 - Best-model checkpoint restoration
